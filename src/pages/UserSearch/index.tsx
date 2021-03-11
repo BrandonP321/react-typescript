@@ -1,4 +1,4 @@
-import React, { ChangeEvent, ReactElement, useState } from 'react'
+import React, { ChangeEvent, ReactElement, useState, useRef, useEffect } from 'react'
 import { FoundUser } from '../../components/FoundUser'
 
 const users = [
@@ -12,6 +12,13 @@ export function UserSearch(): ReactElement {
     const [age, setAge] = useState<number>(0)
     const [foundUser, setFoundUser] = useState<boolean>(false)
     const [query, setQuery] = useState<string>('')
+    // when typing a ref, TS doesn't know if the ref will every have a value
+    const inputEle = useRef<HTMLInputElement | null>(null) // must initialize ref with value of null
+
+    useEffect(() => {
+        // '?' is needed since TS thinks inputEle might be null
+        inputEle.current?.focus()
+    }, [])
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         setQuery(e.target.value);
@@ -30,14 +37,26 @@ export function UserSearch(): ReactElement {
         }
     }
 
+    const dragStart = (e: React.DragEvent<HTMLDivElement>) => {
+        console.log('dragging')
+    }
+
+    const dragEnd = (e: React.DragEvent<HTMLDivElement>) => {
+        console.log('end drag')
+    }
+
     return (
         <div>
-            <input value={query} onChange={handleInputChange} />
+            <input
+                ref={inputEle}
+                value={query}
+                onChange={handleInputChange} />
             <button onClick={handleSearch}>Search</button>
-            <FoundUser 
+            <FoundUser
                 name={name}
                 age={age}
-                found={foundUser}/>
+                found={foundUser} />
+            <div draggable onDrag={() => console.log('hi')} onDragStart={dragStart} onDragEnd={dragEnd}>Drag Me</div>
         </div>
     )
 }
